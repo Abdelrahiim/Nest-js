@@ -8,11 +8,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     snapshot: true,
   });
-  // const config = new DocumentBuilder()
-  //   .setTitle('Nest Project')
-  //   .build();
-  // const document = SwaggerModule.createDocument(app, config);
-  // SwaggerModule.setup('api', app, document);
+  const config = new DocumentBuilder()
+    .setTitle('Nest Project')
+    .setVersion("1.0.1")
+    .setDescription("A First Look At Nest Js FrameWork and it awesome")
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
   const port = parseInt(process.env.PORT) || 3000;
   app.useGlobalPipes(
     new ValidationPipe({

@@ -28,4 +28,18 @@ export class UserService {
     delete user.password;
     return user;
   }
+  async getUserByIdAndBookmarks(userId: number) {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        bookmarks: {
+          select: {
+            title: true,
+            link: true,
+            description: true,
+          },
+        },
+      },
+    });
+  }
 }

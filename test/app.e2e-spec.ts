@@ -8,6 +8,7 @@ import { faker } from '@faker-js/faker';
 import { AuthDto } from '../src/auth/dto';
 import * as process from 'process';
 import { EditUserDto } from '../src/user/dto';
+import { expect } from 'pactum';
 
 describe('App e2e ', () => {
   let app: INestApplication;
@@ -265,7 +266,82 @@ describe('App e2e ', () => {
           .expectStatus(HttpStatus.NOT_FOUND);
       });
     });
-    describe('Edit bookmark', () => {});
-    describe('delete bookmark', () => {});
+    describe('Edit bookmark', () => {
+      it('it Should Update The Bookmark', () => {
+        return pactum
+          .spec()
+          .patch('/bookmarks/$S{bookmarkId}')
+          .withBody({
+            title: faker.commerce.productName(),
+            link: faker.internet.url(),
+            description: faker.commerce.productDescription(),
+          })
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(HttpStatus.OK)
+          .expectHeaderContains('content-type', 'application/json')
+          .expectBodyContains('title')
+          .expectBodyContains('link');
+      });
+
+      it('it Should Return Not Found', () => {
+        return pactum
+          .spec()
+          .patch('/bookmarks/4343')
+          .withBody({
+            title: faker.commerce.productName(),
+            link: faker.internet.url(),
+            description: faker.commerce.productDescription(),
+          })
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(HttpStatus.NOT_FOUND);
+      });
+      it('it Should Return UnAuthorized', () => {
+        return pactum
+          .spec()
+          .patch('/bookmarks/$S{bookmarkId}')
+          .withBody({
+            title: faker.commerce.productName(),
+            link: faker.internet.url(),
+            description: faker.commerce.productDescription(),
+          })
+          .expectStatus(HttpStatus.UNAUTHORIZED);
+      });
+    });
+    describe('delete bookmark', () => {
+      it('it Should Delete The Bookmark', () => {
+        return pactum
+          .spec()
+          .delete('/bookmarks/$S{bookmarkId}')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(HttpStatus.OK)
+          .expectBody({
+            message: 'Successfully Delete Bookmark with id $S{bookmarkId}',
+          });
+      });
+      it('it Should Return UnAuthorized', () => {
+        return pactum
+          .spec()
+          .delete('/bookmarks/324234')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(HttpStatus.NOT_FOUND);
+      });
+      it('it Should Return Not Found', () => {
+        return pactum
+          .spec()
+          .delete('/bookmarks/324234')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(HttpStatus.NOT_FOUND);
+      });
+    });
   });
 });

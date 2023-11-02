@@ -5,17 +5,16 @@ import {
   HttpCode,
   HttpStatus,
   Patch,
-  Req,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { UserService } from './user.service';
-import { Request } from 'express';
+
 import { JwtGuard } from '../auth/guard';
 import { GetUser, ReturnUser } from '../auth/decorators';
 import { EditUserDto } from './dto';
-import { th } from '@faker-js/faker';
+import { ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Users')
 @Controller('users')
 @UseGuards(JwtGuard)
 export class UserController {
@@ -24,7 +23,6 @@ export class UserController {
   /**
    *  GET /users/
    */
-
   @Get('/')
   list() {
     return this.userService.listAllUsers();
@@ -33,6 +31,10 @@ export class UserController {
   @Get('/me')
   getMe(@GetUser() user: ReturnUser) {
     return user;
+  }
+  @Get('/me/bookmarks')
+  async getUserWithBookmarks(@GetUser('id') userId: number) {
+    return await this.userService.getUserByIdAndBookmarks(userId);
   }
   @HttpCode(HttpStatus.OK)
   @Patch()

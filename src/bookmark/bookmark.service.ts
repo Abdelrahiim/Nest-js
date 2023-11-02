@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { BookmarkDto, EditBookmarkDto } from './dto';
 
@@ -36,12 +40,50 @@ export class BookmarkService {
       throw new NotFoundException(`Object With id ${bookmarkId} Not Found `);
     }
   }
-
   async updateBookmarksByID(
     userId: number,
     bookmarkId: number,
     dto: EditBookmarkDto,
-  ) {}
+  ) {
+    await this.confirmOwnership(userId, bookmarkId);
+    return this.prisma.bookMark.update({
+      where: {
+        id: bookmarkId,
+      },
+      data: {
+        ...dto,
+      },
+    });
+  }
 
-  async deleteBookmarksByID(userId: number, bookmarkId: number) {}
+  async deleteBookmarksByID(userId: number, bookmarkId: number) {
+    await this.confirmOwnership(userId, bookmarkId);
+    await this.prisma.bookMark.delete({
+      where: {
+        id: bookmarkId,
+      },
+    });
+    return { message: `Successfully Delete Bookmark with id ${bookmarkId}` };
+  }
+
+  private async confirmOwnership(userId: number, bookmarkId: number) {
+    const confirmed = await this.checkOwnership(userId, bookmarkId);
+    if (!confirmed) {
+      throw new ForbiddenException(
+        `You are Not Allow To modify This BookMark `,
+      );
+    }
+  }
+  private async checkOwnership(userId: number, bookmarkId: number) {
+    try {
+      const bookmark = await this.prisma.bookMark.findUniqueOrThrow({
+        where: {
+          id: bookmarkId,
+        },
+      });
+      return bookmark.userId === userId;
+    } catch (e) {
+      throw new NotFoundException('Object With id ${bookmarkId} Not Found');
+    }
+  }
 }
