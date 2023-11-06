@@ -66,6 +66,12 @@ export class BookmarkService {
     return { message: `Successfully Delete Bookmark with id ${bookmarkId}` };
   }
 
+  /**
+   * Confirms That The User is Owner of the Bookmark
+   * @param userId
+   * @param bookmarkId
+   * @private
+   */
   private async confirmOwnership(userId: number, bookmarkId: number) {
     const confirmed = await this.checkOwnership(userId, bookmarkId);
     if (!confirmed) {
@@ -74,6 +80,13 @@ export class BookmarkService {
       );
     }
   }
+
+  /**
+   * check if the User is Owner of the Bookmark Before Editing
+   * @param userId
+   * @param bookmarkId
+   * @private
+   */
   private async checkOwnership(userId: number, bookmarkId: number) {
     try {
       const bookmark = await this.prisma.bookMark.findUniqueOrThrow({

@@ -10,8 +10,8 @@ async function bootstrap() {
   });
   const config = new DocumentBuilder()
     .setTitle('Nest Project')
-    .setVersion("1.0.1")
-    .setDescription("A First Look At Nest Js FrameWork and it awesome")
+    .setVersion('1.0.1')
+    .setDescription('A First Look At Nest Js FrameWork and it awesome')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

@@ -44,14 +44,15 @@ describe('App e2e ', () => {
       email: faker.internet.email(),
       password: faker.internet.password(),
     };
-
     describe('Signup', () => {
       it('Should Sign Up', async () => {
         return pactum
           .spec()
           .post('/auth/signup')
           .withBody(user)
-          .expectStatus(HttpStatus.CREATED);
+          .expectStatus(HttpStatus.CREATED)
+          .stores('userAt', 'access_token')
+          .stores('rtToken', 'refresh_token');
       });
       it('Should Throw No body Provided', async () => {
         return pactum
@@ -82,7 +83,23 @@ describe('App e2e ', () => {
           .expectStatus(HttpStatus.FORBIDDEN);
       });
     });
-
+    describe('SignOut', () => {
+      it('Should Sign Out ', () => {
+        return pactum
+          .spec()
+          .delete('/auth/logout')
+          .withHeaders({
+            Authorization: 'Bearer $S{userAt}',
+          })
+          .expectStatus(HttpStatus.OK);
+      });
+      it('Should Throw UnAuthorized ', () => {
+        return pactum
+          .spec()
+          .delete('/auth/logout')
+          .expectStatus(HttpStatus.UNAUTHORIZED);
+      });
+    });
     describe('Sign In', () => {
       it('Should Throw No body Provided', async () => {
         return pactum
@@ -117,7 +134,28 @@ describe('App e2e ', () => {
           .post('/auth/login')
           .withBody(user)
           .expectStatus(HttpStatus.OK)
-          .stores('userAt', 'access_token');
+          .stores('userAt', 'access_token')
+          .stores('rtToken', 'refresh_token');
+      });
+    });
+    describe('Refresh Token', () => {
+      it('Should Refresh Tokens ', () => {
+        return pactum
+          .spec()
+          .get('/auth/refresh')
+          .withHeaders({
+            Authorization: 'Bearer $S{rtToken}',
+          })
+          .expectStatus(HttpStatus.OK)
+          .expectBodyContains('access_token')
+          .stores('userAt', 'access_token')
+          .stores('rtToken', 'refresh_token');
+      });
+      it('Should Refresh UnAuthorized ', () => {
+        return pactum
+          .spec()
+          .get('/auth/refresh')
+          .expectStatus(HttpStatus.UNAUTHORIZED);
       });
     });
   });

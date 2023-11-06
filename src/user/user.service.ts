@@ -7,6 +7,10 @@ import { EditUserDto } from './dto';
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
+  /**
+   * Access database Threw Prisma and Return All User Data
+   * @returns users
+   */
   async listAllUsers() {
     try {
       const users: User[] = await this.prisma.user.findMany({});
@@ -16,6 +20,11 @@ export class UserService {
     }
   }
 
+  /**
+   * Update User With Threw Prisma
+   * @param userId
+   * @param dto
+   */
   async updateUser(userId: number, dto: EditUserDto) {
     const user = await this.prisma.user.update({
       where: {
@@ -28,6 +37,11 @@ export class UserService {
     delete user.password;
     return user;
   }
+
+  /**
+   * Get User With it all Bookmarks from prisma
+   * @param userId
+   */
   async getUserByIdAndBookmarks(userId: number) {
     return this.prisma.user.findUnique({
       where: { id: userId },

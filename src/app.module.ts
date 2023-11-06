@@ -5,6 +5,7 @@ import { BookmarkModule } from './bookmark/bookmark.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
+import { HelloModule } from './hello/hello.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { DevtoolsModule } from '@nestjs/devtools-integration';
     UserModule,
     BookmarkModule,
     PrismaModule,
+    HelloModule,
   ],
 })
 export class AppModule {}
