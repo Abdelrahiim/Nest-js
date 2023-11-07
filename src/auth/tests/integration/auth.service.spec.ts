@@ -61,12 +61,34 @@ describe('Auth Flow', () => {
     it("it Should Return Duplicated  Credentials",async ()=>{
       let tokens:Tokens|undefined
       try {
-        const tokens:Tokens = await authService.signup(user)
+        tokens = await authService.signup(user)
       } catch (e){
         expect(e.status).toBe(HttpStatus.FORBIDDEN)
       }
       expect(tokens).toBeUndefined()
     })
+  })
+  describe("Sign In",()=> {
+    it("Should Return Access Token and Refresh Token",async ()=>{
+      const tokens = await authService.login(user)
+      expect(tokens.refresh_token).toBeTruthy()
+      expect(tokens.access_token).toBeTruthy()
+    })
+    it("Should Return Password inCorrect",async ()=>{
+      let tokens:Tokens
+      try{
+        tokens = await authService.login({
+          email:user.email,
+          password:faker.internet.password()
+        })
+        expect(tokens).toBeUndefined();
+
+      } catch (e){
+        expect(e.status).toBe(HttpStatus.FORBIDDEN)
+      }
+      expect(tokens).toBeUndefined()
+    })
+
   })
 
 
